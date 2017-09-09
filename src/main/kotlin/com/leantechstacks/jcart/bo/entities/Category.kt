@@ -5,7 +5,7 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "categories")
-class Category
+class Category()
 {
     @Id
     @SequenceGenerator(name = "cat_generator", sequenceName = "cat_sequence", initialValue = 100)
@@ -21,7 +21,7 @@ class Category
     @Column
     var disabled: Boolean = false
 
-    constructor(id: Long, name: String, description: String, disabled: Boolean) {
+    constructor(id: Long, name: String, description: String, disabled: Boolean) :this() {
         this.id = id
         this.name = name
         this.description = description

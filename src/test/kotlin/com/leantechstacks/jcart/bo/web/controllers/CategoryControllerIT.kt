@@ -25,7 +25,7 @@ class CategoryControllerIT {
     lateinit var mockMvc: MockMvc
 
     @Test
-    fun should_return_category_list_when_there_are_categories() {
+    fun `should return category list when there are categories`() {
        `when`(categoryRepository.findAll())
            .thenReturn(arrayListOf(
                    Category(1, "Cards","Cards", false))

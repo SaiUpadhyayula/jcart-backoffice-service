@@ -22,7 +22,7 @@ class ProductControllerTest {
     lateinit var productRepository: ProductRepository
 
     @Test
-    fun should_return_product_list() {
+    fun `should return product list`() {
         `when`(productRepository.findAll())
                 .thenReturn(listOf(
                     Product(1, "HBD Card", "Happy Birthday Card", BigDecimal(10)),

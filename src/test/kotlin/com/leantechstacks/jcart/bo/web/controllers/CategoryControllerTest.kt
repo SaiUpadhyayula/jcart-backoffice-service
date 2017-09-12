@@ -21,7 +21,7 @@ class CategoryControllerTest {
     lateinit var categoryRepository: CategoryRepository
 
     @Test
-    fun should_return_categories() {
+    fun `should return categories`() {
         `when`(categoryRepository.findAll())
             .thenReturn(listOf(
                     Category(1,"Cards","Cards", false))

@@ -21,6 +21,10 @@ class Category()
     @Column
     var disabled: Boolean = false
 
+    constructor(id: Long) :this() {
+        this.id = id
+    }
+
     constructor(id: Long, name: String, description: String, disabled: Boolean) :this() {
         this.id = id
         this.name = name

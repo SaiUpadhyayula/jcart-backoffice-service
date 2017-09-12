@@ -8,7 +8,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
+import org.mockito.Mockito.`when`
 import org.mockito.runners.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
@@ -21,8 +21,11 @@ class CategoryControllerTest {
     lateinit var categoryRepository: CategoryRepository
 
     @Test
-    fun shouldReturnCategoryList() {
-        Mockito.`when`(categoryRepository.findAll()).thenReturn(listOf(Category(1,"Cards","Cards", false)))
+    fun should_return_categories() {
+        `when`(categoryRepository.findAll())
+            .thenReturn(listOf(
+                    Category(1,"Cards","Cards", false))
+            )
         val categories: List<Category> = categoryController.listCategories()
         assertNotNull(categories)
         assertEquals(1, categories.size)

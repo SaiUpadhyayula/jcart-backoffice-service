@@ -47,9 +47,44 @@ dependencies {
 
 }
 
+jacocoTestReport {
+	reports {
+		html {
+			enabled true
+		}
+	}
+
+	afterEvaluate {
+		classDirectories = files(classDirectories.files.collect {
+			fileTree(dir: it,
+					exclude: [
+						'**/*Application*',
+						'**/entities/*',
+						'**/model/*'
+					]
+			)
+		})
+	}
+}
+
+
+//test {
+//	jacoco {
+//		append = false
+//		destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
+//		classDumpFile = file("$buildDir/jacoco/classpathdumps")
+//	}
+//}
+
 jacocoTestCoverageVerification {
 	violationRules {
 		rule {
+			element = 'CLASS'
+			excludes= [
+					'com.leantechstacks.jcart.bo.BackofficeServiceApplication*',
+					'com.leantechstacks.jcart.bo.entities.*',
+					'com.leantechstacks.jcart.bo.web.model.*'
+			]
 			limit {
 				minimum = 0.6
 			}

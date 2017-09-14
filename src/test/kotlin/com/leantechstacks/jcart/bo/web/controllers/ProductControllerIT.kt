@@ -11,7 +11,7 @@ import com.leantechstacks.jcart.bo.web.model.ProductModel
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Matchers
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -170,5 +170,24 @@ class ProductControllerTest {
                         .content(productJSON)
         )
                 .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `should throw error when invalid product id is given to delete`() {
+        `when`(productRepository.findOne(1)).thenReturn(null)
+
+        mockMvc.perform(delete("/products/1").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `should delete product when valid product id is given to delete`() {
+        val productId :Long = 1
+        doNothing().`when`(productRepository).delete(productId)
+        `when`(productRepository.findOne(productId)).thenReturn(Product())
+        mockMvc.perform(
+                    delete("/products/${productId}")
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk)
     }
 }

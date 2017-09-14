@@ -14,6 +14,10 @@ class Vendor()
     @Column(nullable = false)
     var name: String = ""
 
+    constructor(id: Long) :this() {
+        this.id = id
+    }
+
     constructor(id: Long, name: String) :this() {
         this.id = id
         this.name = name

@@ -5,6 +5,8 @@ import com.leantechstacks.jcart.bo.entities.Category
 import com.leantechstacks.jcart.bo.entities.Product
 import com.leantechstacks.jcart.bo.entities.Vendor
 import com.leantechstacks.jcart.bo.repositories.ProductRepository
+import com.leantechstacks.jcart.bo.repositories.VendorRepository
+import com.leantechstacks.jcart.bo.web.model.ProductModel
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Matchers
@@ -26,6 +28,9 @@ class ProductControllerTest {
 
     @MockBean
     lateinit var productRepository: ProductRepository
+
+    @MockBean
+    lateinit var vendorRepository: VendorRepository
 
     @Autowired
     lateinit var mockMvc: MockMvc
@@ -52,8 +57,9 @@ class ProductControllerTest {
 
     @Test
     fun `should throw error when new product doesn't have product name`() {
-        val product = Product(0,"","New Product1", BigDecimal.TEN,
-                Vendor(1, "Vendor1"), Category(2))
+        val productModel = ProductModel(0,"","New Product1", BigDecimal.TEN,
+                Vendor(1, "Vendor1"), 2)
+        val product = productModel.toEntity()
         val productJSON = ObjectMapper().writeValueAsString(product)
         `when`(productRepository.save(product)).thenReturn(product)
 
@@ -68,8 +74,9 @@ class ProductControllerTest {
 
     @Test
     fun `should throw error when new product price is less than zero`() {
-        val product = Product(0,"NewProduct","New Product1", -BigDecimal.TEN,
-                Vendor(1, "Vendor1"), Category(2))
+        val productModel = ProductModel(0,"NewProduct","New Product1", -BigDecimal.TEN,
+                Vendor(1, "Vendor1"), 2)
+        val product = productModel.toEntity()
         val productJSON = ObjectMapper().writeValueAsString(product)
         `when`(productRepository.save(product)).thenReturn(product)
 
@@ -83,8 +90,9 @@ class ProductControllerTest {
 
     @Test
     fun `should throw error when new product vendor id is not set`() {
-        val product = Product(0,"NewProduct","New Product1", BigDecimal.TEN,
-                Vendor(0, "Vendor1"), Category(2))
+        val productModel = ProductModel(0,"NewProduct","New Product1", BigDecimal.TEN,
+                Vendor(0, "Vendor1"), 2)
+        val product = productModel.toEntity()
         val productJSON = ObjectMapper().writeValueAsString(product)
         `when`(productRepository.save(product)).thenReturn(product)
 
@@ -98,23 +106,24 @@ class ProductControllerTest {
 
 
     @Test
-    fun `should saved product when valid product data is given to save`() {
-        val product = Product(0,"Product1","New Product1", BigDecimal.TEN,
-                        Vendor(1, "Vendor1"), Category(2))
+    fun `should save product when valid product data is given to save`() {
+        val productModel = ProductModel(0,"Product1","New Product1", BigDecimal.TEN,
+                        Vendor(1, "Vendor1"), 2)
+        val product = productModel.toEntity()
         val productJSON = ObjectMapper().writeValueAsString(product)
         `when`(productRepository.save(Matchers.any(Product::class.java))).thenReturn(product)
-
+        `when`(vendorRepository.findOne(product.vendor.id)).thenReturn(Vendor(product.vendor.id))
         mockMvc.perform(
             post("/products")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(productJSON)
             )
-            .andExpect(status().isOk)
+            .andExpect(status().isCreated)
             // .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.name").value("Product1"))
             .andExpect(jsonPath("$.description").value("New Product1"))
             .andExpect(jsonPath("$.price").value(BigDecimal.TEN))
             .andExpect(jsonPath("$.vendor.id").value(1))
-            .andExpect(jsonPath("$.category.id").value(2))
+            .andExpect(jsonPath("$.categoryId").value(2))
     }
 }

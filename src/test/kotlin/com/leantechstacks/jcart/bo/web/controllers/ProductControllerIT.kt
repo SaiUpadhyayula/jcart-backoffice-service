@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.leantechstacks.jcart.bo.entities.Category
 import com.leantechstacks.jcart.bo.entities.Product
 import com.leantechstacks.jcart.bo.entities.Vendor
+import com.leantechstacks.jcart.bo.repositories.CategoryRepository
 import com.leantechstacks.jcart.bo.repositories.ProductRepository
 import com.leantechstacks.jcart.bo.repositories.VendorRepository
 import com.leantechstacks.jcart.bo.web.model.ProductModel
@@ -31,6 +32,9 @@ class ProductControllerTest {
 
     @MockBean
     lateinit var vendorRepository: VendorRepository
+
+    @MockBean
+    lateinit var categoryRepository: CategoryRepository
 
     @Autowired
     lateinit var mockMvc: MockMvc
@@ -60,7 +64,7 @@ class ProductControllerTest {
         val productModel = ProductModel(0,"","New Product1", BigDecimal.TEN,
                 Vendor(1, "Vendor1"), 2)
         val product = productModel.toEntity()
-        val productJSON = ObjectMapper().writeValueAsString(product)
+        val productJSON = ObjectMapper().writeValueAsString(productModel)
         `when`(productRepository.save(product)).thenReturn(product)
 
         mockMvc.perform(
@@ -77,7 +81,7 @@ class ProductControllerTest {
         val productModel = ProductModel(0,"NewProduct","New Product1", -BigDecimal.TEN,
                 Vendor(1, "Vendor1"), 2)
         val product = productModel.toEntity()
-        val productJSON = ObjectMapper().writeValueAsString(product)
+        val productJSON = ObjectMapper().writeValueAsString(productModel)
         `when`(productRepository.save(product)).thenReturn(product)
 
         mockMvc.perform(
@@ -93,7 +97,7 @@ class ProductControllerTest {
         val productModel = ProductModel(0,"NewProduct","New Product1", BigDecimal.TEN,
                 Vendor(0, "Vendor1"), 2)
         val product = productModel.toEntity()
-        val productJSON = ObjectMapper().writeValueAsString(product)
+        val productJSON = ObjectMapper().writeValueAsString(productModel)
         `when`(productRepository.save(product)).thenReturn(product)
 
         mockMvc.perform(
@@ -110,9 +114,10 @@ class ProductControllerTest {
         val productModel = ProductModel(0,"Product1","New Product1", BigDecimal.TEN,
                         Vendor(1, "Vendor1"), 2)
         val product = productModel.toEntity()
-        val productJSON = ObjectMapper().writeValueAsString(product)
+        val productJSON = ObjectMapper().writeValueAsString(productModel)
         `when`(productRepository.save(Matchers.any(Product::class.java))).thenReturn(product)
         `when`(vendorRepository.findOne(product.vendor.id)).thenReturn(Vendor(product.vendor.id))
+        `when`(categoryRepository.findOne(product.category.id)).thenReturn(Category(product.category.id))
         mockMvc.perform(
             post("/products")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -125,5 +130,45 @@ class ProductControllerTest {
             .andExpect(jsonPath("$.price").value(BigDecimal.TEN))
             .andExpect(jsonPath("$.vendor.id").value(1))
             .andExpect(jsonPath("$.categoryId").value(2))
+    }
+
+    @Test
+    fun `should update product when valid product data is given to update`() {
+        val productModel = ProductModel(1,"Product1-New","New Product1-New", BigDecimal.TEN,
+                Vendor(1, "Vendor1"), 3)
+        val product = productModel.toEntity()
+        val productJSON = ObjectMapper().writeValueAsString(productModel)
+        `when`(productRepository.save(Matchers.any(Product::class.java))).thenReturn(product)
+        `when`(productRepository.findOne(product.id)).thenReturn(product)
+        `when`(vendorRepository.findOne(product.vendor.id)).thenReturn(Vendor(product.vendor.id))
+        `when`(categoryRepository.findOne(product.category.id)).thenReturn(Category(product.category.id))
+        mockMvc.perform(
+                put("/products/${productModel.id}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(productJSON)
+        )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Product1-New"))
+                .andExpect(jsonPath("$.description").value("New Product1-New"))
+                .andExpect(jsonPath("$.price").value(BigDecimal.TEN))
+                .andExpect(jsonPath("$.vendor.id").value(1))
+                .andExpect(jsonPath("$.categoryId").value(3))
+    }
+
+    @Test
+    fun `should throw error when product id is invalid to update product`() {
+        val productModel = ProductModel(123,"NewProduct","New Product1", BigDecimal.TEN,
+                Vendor(0, "Vendor1"), 2)
+        val product = productModel.toEntity()
+        val productJSON = ObjectMapper().writeValueAsString(productModel)
+        `when`(productRepository.findOne(product.id)).thenReturn(null)
+
+        mockMvc.perform(
+                put("/products/${productModel.id}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(productJSON)
+        )
+                .andExpect(status().isBadRequest)
     }
 }

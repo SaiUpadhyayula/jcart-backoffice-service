@@ -52,6 +52,15 @@ class ProductController(private val productRepository: ProductRepository,
         return ResponseEntity(ProductModel(productEntity), HttpStatus.OK)
     }
 
+    @DeleteMapping("/products/{productId}")
+    fun deleteProduct(@PathVariable productId: Long): ResponseEntity<ProductModel> {
+        if(productRepository.findOne(productId) == null) {
+            throw InvalidProductException()
+        }
+        productRepository.delete(productId)
+        return ResponseEntity(HttpStatus.OK)
+    }
+
     private fun validateProduct(product: ProductModel)
     {
         if(product.name.trim().isEmpty() ||

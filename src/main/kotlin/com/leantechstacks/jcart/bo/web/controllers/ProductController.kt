@@ -60,7 +60,7 @@ class ProductController(private val productRepository: ProductRepository,
         return ResponseEntity(HttpStatus.OK)
     }
 
-    @GetMapping("/products/{categoryId}")
+    @GetMapping("/products/category/{categoryId}")
     fun getProductByCategory(@PathVariable categoryId: Long): List<ProductModel> {
         if (categoryRepository.findOne(categoryId) == null) {
             throw InvalidCategoryException()

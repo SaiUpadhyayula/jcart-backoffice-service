@@ -202,7 +202,7 @@ class ProductControllerTest {
                                 vendor = Vendor(1, "Vendor1"),
                                 category = Category(id = 1))
                 ))
-        mockMvc.perform(get("/products/$categoryId"))
+        mockMvc.perform(get("/products/category/$categoryId"))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.size()").value(1))
                 .andExpect(jsonPath("$[0].id").value(1))
@@ -219,7 +219,7 @@ class ProductControllerTest {
         val categoryId: Long = 1
         `when`(categoryRepository.findOne(categoryId))
                 .thenReturn(null)
-        mockMvc.perform(get("/products/$categoryId"))
+        mockMvc.perform(get("/products/category/$categoryId"))
                 .andExpect(status().isBadRequest)
     }
 }

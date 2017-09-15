@@ -15,4 +15,5 @@ INSERT INTO CATEGORIES(id, name, description, disabled) values
 INSERT INTO PRODUCTS(id, name, description, price, vendor_id, cat_id) values
 (1, 'HBD Greeting Card', 'Happy Birthday Greeting Card', '15.0', 1, 1),
 (2, 'Wedding Greeting Card', 'Wedding Greeting Card', '45.0', 1, 1),
-(3, 'Necklace', 'Necklace', '25.0', 2, 2);
+(3, 'Necklace', 'Necklace', '25.0', 2, 2),
+(4, 'Poster', 'Poster', '25.0', 2, 3);

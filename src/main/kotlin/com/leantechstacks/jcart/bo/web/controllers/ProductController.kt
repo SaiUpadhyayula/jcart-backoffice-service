@@ -1,6 +1,7 @@
 package com.leantechstacks.jcart.bo.web.controllers
 
 import com.leantechstacks.jcart.bo.entities.Product
+import com.leantechstacks.jcart.bo.exceptions.InvalidCategoryException
 import com.leantechstacks.jcart.bo.exceptions.InvalidProductException
 import com.leantechstacks.jcart.bo.repositories.CategoryRepository
 import com.leantechstacks.jcart.bo.repositories.ProductRepository
@@ -17,13 +18,11 @@ class ProductController(private val productRepository: ProductRepository,
                         private val categoryRepository: CategoryRepository) {
 
     @GetMapping("/products")
-    fun listProducts(): List<ProductModel>
-    {
+    fun listProducts(): List<ProductModel> {
         return productRepository.findAll().map { p -> map(p) }
     }
 
-    private fun map(product: Product): ProductModel
-    {
+    private fun map(product: Product): ProductModel {
         return ProductModel(
                 product.id,
                 product.name,
@@ -43,7 +42,7 @@ class ProductController(private val productRepository: ProductRepository,
 
     @PutMapping("/products/{productId}")
     fun updateProduct(@RequestBody product: ProductModel, @PathVariable productId: Long): ResponseEntity<ProductModel> {
-        if(productRepository.findOne(productId) == null) {
+        if (productRepository.findOne(productId) == null) {
             throw InvalidProductException()
         }
         product.id = productId
@@ -54,20 +53,26 @@ class ProductController(private val productRepository: ProductRepository,
 
     @DeleteMapping("/products/{productId}")
     fun deleteProduct(@PathVariable productId: Long): ResponseEntity<ProductModel> {
-        if(productRepository.findOne(productId) == null) {
+        if (productRepository.findOne(productId) == null) {
             throw InvalidProductException()
         }
         productRepository.delete(productId)
         return ResponseEntity(HttpStatus.OK)
     }
 
-    private fun validateProduct(product: ProductModel)
-    {
-        if(product.name.trim().isEmpty() ||
-           product.price < BigDecimal.ZERO ||
-           vendorRepository.findOne(product.vendor.id) == null ||
-           categoryRepository.findOne(product.categoryId) == null)
-        {
+    @GetMapping("/products/{categoryId}")
+    fun getProductByCategory(@PathVariable categoryId: Long): List<ProductModel> {
+        if (categoryRepository.findOne(categoryId) == null) {
+            throw InvalidCategoryException()
+        }
+        return productRepository.findByCategoryId(categoryId).map {p-> map(p)}
+    }
+
+    private fun validateProduct(product: ProductModel) {
+        if (product.name.trim().isEmpty() ||
+                product.price < BigDecimal.ZERO ||
+                vendorRepository.findOne(product.vendor.id) == null ||
+                categoryRepository.findOne(product.categoryId) == null) {
             throw InvalidProductException()
         }
     }
